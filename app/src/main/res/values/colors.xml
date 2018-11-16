@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <!--activity_child activity_parent-->
+    <color name="childToolBar">#7FB556</color>
+    <color name="childBottomBar">#B9B9A3</color>
+    <color name="listTitleColor">#000000</color>
+    <color name="listInfoColor">#666666</color>
+    <color name="parentToolBar">#123456</color>
+    <color name="parentBottomBar">#567891</color>
+    <color name="childBoyToolBar">#4285F4</color>
+    <color name="childGirlToolBar">#EA4235</color>
+    <color name="parentFatherToolBar">#27A69A</color> <!--#4187EB-->
+    <color name="parentMotherToolBar">#F49715</color>
+    <!--activity_login activity_register-->
+    <color name="accountCheck">#FF0000</color>
+    <color name="passwordCheck">#FF0000</color>
+</resources>

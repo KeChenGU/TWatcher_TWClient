@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--12.3-->
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--12.4.3 CoordinatorLayout 加强版FrameLayout 可以监听子控件事件 做出动态布局调整-->
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--12.5.2 AppBarLayout 升级版LinearLayout 垂直方向-->
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!--12.2.1 工具栏-->
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:layout_scrollFlags="scroll|enterAlways|snap"/>
+            <!--12.5.2 app:layout_scrollFlags scroll 向上滚动隐藏 enterAlways 向下滚动并显示 snap 未完全滚动时 自适应调整-->
+        </android.support.design.widget.AppBarLayout>
+
+        <!--12.6 下拉刷新 -->
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            <!--12.5.1 -->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                /> <!--12.5.2 设置适应自适应 不设置会被盖住-->
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+        <!--12.4.1 悬浮按钮
+       app:elevation属性控制投影高度-->
+        <!--<android.support.design.widget.FloatingActionButton-->
+            <!--android:id="@+id/fab"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="bottom|end"-->
+            <!--android:layout_margin="16dp"-->
+            <!--android:src="@drawable/ic_done"-->
+            <!--app:elevation="8dp"/>-->
+
+    </android.support.design.widget.CoordinatorLayout>
+
+    <!--12.3.1 想要指定滑动显示的控件必须指定layout_gravity属性否则无法使其正常工作 如滑动
+    start 表示自适应系统语言字体方向 大部分从左到右-->
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_gravity="start"-->
+        <!--android:background="#FFF"-->
+        <!--android:text="This is Menu"-->
+        <!--android:textSize="30sp" />-->
+    <!--DrawerLayout 中滑动显示的导航视图-->
+    <!--<android.support.design.widget.NavigationView-->
+        <!--android:id="@+id/nav_view"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_gravity="start"-->
+        <!--app:menu="@menu/nav_menu"-->
+        <!--app:headerLayout="@layout/nav_header">-->
+
+    <!--</android.support.design.widget.NavigationView>-->
+
+</android.support.v4.widget.DrawerLayout>
+
+<!--12.1-12.2 Toolbar-->
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="match_parent">-->
+
+<!--&lt;!&ndash;12.2.1&ndash;&gt;-->
+<!--&lt;!&ndash;app命名空间5.0以上才有设置弹出菜单的主题&ndash;&gt;-->
+<!--&lt;!&ndash;background="?attr/colorPrimary"与colors.xml对应 暗蓝色&ndash;&gt;-->
+<!--<android.support.v7.widget.Toolbar-->
+<!--android:id="@+id/toolbar"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="?attr/actionBarSize"-->
+<!--android:background="?attr/colorPrimary"-->
+<!--android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"-->
+<!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />-->
+<!--</FrameLayout>-->

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<litepal>
+    <dbname value="TWatcher_App_Local"></dbname>
+    <version value="2"></version>
+    <list>
+        <mapping class="com.apps.haitao.twatcher.twclient.activities.tables.TW_Users"></mapping>
+        <mapping class="com.apps.haitao.twatcher.twclient.activities.tables.TW_User_Associations"></mapping>
+        <mapping class="com.apps.haitao.twatcher.twclient.activities.tables.App_Infos"></mapping>
+        <mapping class="com.apps.haitao.twatcher.twclient.activities.tables.App_Time_Infos"></mapping>
+        <mapping class="com.apps.haitao.twatcher.twclient.activities.tables.Parent_Settings"></mapping>
+    </list>
+</litepal>

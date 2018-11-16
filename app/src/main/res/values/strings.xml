@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">TWClient</string>
+    <string name="watch_tag">"WatchActivity"</string>
+    <!--登录注册用 activity_login activity_register 用-->
+    <string name="app_chinese_name">掌控宝</string>
+    <string name="login_account">登录账号</string>
+    <string name="register_account">注册账号</string>
+    <string name="account_name">账号</string>
+    <string name="account_password">密码</string>
+    <string name="account_check_code">验证码</string>
+    <string name="login_hint_account">请输入手机号</string>
+    <string name="login_hint_password">请输入密码</string>
+    <string name="register_hint_account">请输入有效手机号</string>
+    <string name="register_hint_password">密码8-16位,包含英文大小写,数字,下划线</string>
+    <string name="register_hint_check_code">请输入短信验证码</string>
+    <string name="remember_password">记住账号密码</string>
+    <string name="gain_message_code">获取验证码</string>
+    <!--activity_select_identity activity_select_gender-->
+    <string name="select_identity">选择身份</string>
+    <string name="identity_child">孩子</string>
+    <string name="identity_parent">家长</string>
+    <string name="select_gender">选择性别</string>
+    <string name="gender_male">男</string>
+    <string name="gender_female">女</string>
+    <!--activity_child activity_parent 用-->
+    <string name="my_parents">我的家长</string>
+    <string name="my_children">我的孩子</string>
+    <string name="my_info">关于我</string>
+    <string name="my_setting">设置</string>
+    <string name="pull_refresh_latest_app_info">下拉获取最新使用情况</string>
+    <string name="clear_info">清空消息</string>
+    <string name="watch_info_details">查看详情</string>
+    <!--activity_specific_info-->
+    <string name="login_out_account">退出登录</string>
+    <!--activity_association 用-->
+    <string name="input_phone">请输入电话号码</string>
+    <string name="input_yes">确定</string>
+</resources>
