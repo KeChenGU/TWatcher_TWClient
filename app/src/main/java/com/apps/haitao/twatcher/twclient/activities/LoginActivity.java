@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -31,13 +32,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private String backNews = "";
 
-    //
-
     private TextView toRegisterText;
 
     private TextView loginAccountText;
 
     private TextView loginPasswordText;
+
+    private TextView fogetPasswordText;
 
     private Button loginButton;
 
@@ -64,7 +65,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         registerButton.setOnClickListener(this);
         loginAccountText = (TextView)findViewById(R.id.login_account);
         loginPasswordText = (TextView)findViewById(R.id.login_password);
+        fogetPasswordText = (TextView)findViewById(R.id.forget_password);
         rememberAccountBox = (CheckBox)findViewById(R.id.remember_account);
+        fogetPasswordText.setOnClickListener(this);
         //rememberAccountBox.setOnClickListener(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isRemember = preferences.getBoolean("remember_account", false);
@@ -126,6 +129,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 intent.setClass(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.forget_password:
+                intent.setClass(LoginActivity.this, ChangePassActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 
@@ -135,8 +142,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         List<TW_Users> accountFlagList = LitePal.where("phone_num = ?", account).find(TW_Users.class);
         List<TW_Users> passwordFlagList = LitePal.where("phone_num = ? AND password = ?",
                 account, password).find(TW_Users.class);
+
         if (accountFlagList == null || accountFlagList.size() == 0) {
-            Toast.makeText(this, "账户不存在!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "账户不存在!", Toast.LENGTH_SHORT).show();
             return null;
         } else if (passwordFlagList == null || passwordFlagList.size() == 0) {
             Toast.makeText(this, "密码错误!", Toast.LENGTH_SHORT).show();
@@ -155,17 +163,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void checkInputsNetWorkly() {
-        final String account = loginAccountText.getText().toString();
-        final String password = DbUtil.md5(loginPasswordText.getText().toString());
-//        if (account == null || password == null || account.equals("") || password.equals("")) {
-//            backNews = "账号密码不得为空!";
-//            return;
-//        }
+        //final String account = loginAccountText.getText().toString().trim();
+        //final String password = DbUtil.md5(loginPasswordText.getText().toString().trim());
+        String account = loginAccountText.getText() == null ? "" : loginAccountText.getText().toString();
+        String password = loginPasswordText.getText() == null ? "123456"
+                : DbUtil.md5(loginPasswordText.getText().toString().trim());
+        if (account == null || password == null || account.equals("") || password.equals("")) {
+            backNews = "账号密码不得为空!";
+            return;
+        }
         try {
             backNews = HttpUtil.sendLoginRequest(account, password);
+            Log.d("json", backNews);
         } catch (IOException e) {
             e.printStackTrace();
             LogUtil.e(Utility.WATCH_TAG, "登录异常!");
+            //Toast.makeText(this, "请检查网络！", Toast.LENGTH_SHORT).show();
             //return;
         }
 

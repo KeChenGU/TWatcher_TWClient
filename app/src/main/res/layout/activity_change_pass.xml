@@ -5,14 +5,13 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/create_association2"
-    tools:context=".activities.AssociationActivity">
+    tools:context=".activities.ChangePassActivity">
 
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="50sp"
-        android:background="#85B84F">
+        android:background="#F66566">
 
         <TextView
             android:id="@+id/child_user_name"
@@ -20,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:textSize="20sp"
-            android:text="绑定"
+            android:text="找回密码"
             android:textColor="#FFFFFF" />
 
     </RelativeLayout>
@@ -52,6 +51,44 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/input_new_pass"
+            android:textSize="15sp"/>
+        <EditText
+            android:id="@+id/input_new_pass"
+            android:layout_width="150sp"
+            android:layout_height="50sp"
+            android:inputType="textPassword"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20sp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/input_new_pass_again"
+            android:textSize="15sp"/>
+        <EditText
+            android:id="@+id/input_new_pass_again"
+            android:layout_width="150sp"
+            android:layout_height="50sp"
+            android:inputType="textPassword"/>
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20sp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/input_check"
             android:textSize="15sp"/>
         <EditText
@@ -63,7 +100,7 @@
             android:id="@+id/get_check"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="获取验证码"/>
+            android:text="@string/get_check"/>
     </LinearLayout>
 
     <Button

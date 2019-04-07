@@ -22,6 +22,8 @@ public class AssociationActivity extends AppCompatActivity {
 
     private Button yesButton;
 
+    private Button sendButton;
+
     private Intent dealIntent;
 
     //
@@ -32,16 +34,18 @@ public class AssociationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_association);
         yesButton = findViewById(R.id.input_yes);
+        sendButton = findViewById(R.id.get_check);
         inputPhoneEdit = findViewById(R.id.input_phone);
         dealIntent = getIntent();
         yesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(AssociationActivity.this, "绑定成功！", Toast.LENGTH_SHORT).show();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         String parentId = dealIntent.getStringExtra("parentId");
-                        LogUtil.d(Utility.WATCH_TAG, "!!!" + parentId);
+                        LogUtil.d(Utility.WATCH_TAG, "parentId:" + parentId);
                         String phoneNum = inputPhoneEdit.getText().toString();
                         try {
                             backNews = HttpUtil.sendCreateAssociationRequest(parentId, phoneNum);
@@ -63,6 +67,11 @@ public class AssociationActivity extends AppCompatActivity {
                 }
             }
         });
-
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(AssociationActivity.this, "验证码已经发送请注意查收！", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

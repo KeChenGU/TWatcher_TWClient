@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.apps.haitao.twatcher.twclient.R;
 import com.apps.haitao.twatcher.twclient.activities.tables.TW_Users;
 import com.apps.haitao.twatcher.twclient.activities.twutil.NetWorkUtil;
+import com.apps.haitao.twatcher.twclient.activities.twutil.SMSUtil;
 
 import org.litepal.LitePal;
 
@@ -33,6 +34,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText passwordInput;
 
+    private EditText checkCodeInput;
+
     private TextView accountErrorText;
 
     private TextView passwordErrorText;
@@ -42,13 +45,51 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+
+        SMSUtil.assignEventHandler(new SMSUtil.SmsDealer() {
+            @Override
+            public void sendSuccess() {
+                Toast.makeText(RegisterActivity.this, "验证码发送成功！请注意查收！"
+                        , Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void sendFail() {
+                Toast.makeText(RegisterActivity.this,
+                        "验证码发送失败！请检查网络后再次尝试！", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void passRight() {
+                Toast.makeText(RegisterActivity.this, "注册成功！", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                intent.setClass(RegisterActivity.this, SelectIdentityActivity.class);
+                Bundle userData = new Bundle();
+                userData.putString("Action", "handleRegister");
+                userData.putString("account", accountInput.getText() == null ? "" : accountInput.getText().toString());
+                userData.putString("password", passwordInput.getText() == null ? "" : passwordInput.getText().toString());
+                intent.putExtras(userData);
+                startActivity(intent);
+                overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+                finish();
+            }
+
+            @Override
+            public void passWrong() {
+                Toast.makeText(RegisterActivity.this,
+                        "验证失败！请检查验证码正误与网络状况！", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         toLoginText = (TextView)findViewById(R.id.to_login_text);
         registerButton = (Button)findViewById(R.id.register_button);
         sendCheckCodeButton = (Button)findViewById(R.id.send_check_code);
         accountInput = (EditText)findViewById(R.id.register_account);
         passwordInput = (EditText)findViewById(R.id.register_password);
+        checkCodeInput = (EditText)findViewById(R.id.register_check_code);
         accountErrorText = (TextView)findViewById(R.id.check_account);
         passwordErrorText = (TextView)findViewById(R.id.check_password);
+
 
         toLoginText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,15 +106,19 @@ public class RegisterActivity extends AppCompatActivity {
                 } else if (checkOverLay()) {
                     Toast.makeText(RegisterActivity.this, "该手机号已经被注册!", Toast.LENGTH_SHORT).show();
                 } else if (checkInputMessage()) {
-                    Intent intent = new Intent();
-                    intent.setClass(RegisterActivity.this, SelectIdentityActivity.class);
-                    Bundle userData = new Bundle();
-                    userData.putString("Action", "handleRegister");
-                    userData.putString("account", accountInput.getText() == null ? "" : accountInput.getText().toString());
-                    userData.putString("password", passwordInput.getText() == null ? "" : passwordInput.getText().toString());
-                    intent.putExtras(userData);
-                    startActivity(intent);
-                    overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+//                    Intent intent = new Intent();
+//                    intent.setClass(RegisterActivity.this, SelectIdentityActivity.class);
+//                    Bundle userData = new Bundle();
+//                    userData.putString("Action", "handleRegister");
+//                    userData.putString("account", accountInput.getText() == null ? "" : accountInput.getText().toString());
+//                    userData.putString("password", passwordInput.getText() == null ? "" : passwordInput.getText().toString());
+//                    intent.putExtras(userData);
+//                    startActivity(intent);
+//                    overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+//                    finish();
+                    SMSUtil.submitVerificationCode("86",
+                           accountInput.getText() == null ? "18906632597" : accountInput.getText().toString(),
+                            checkCodeInput.getText() == null ? "" : checkCodeInput.getText().toString());
                 }else {
                     Toast.makeText(RegisterActivity.this, "请确保账号密码输入格式无误!", Toast.LENGTH_SHORT).show();
                 }
@@ -155,6 +200,19 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
+        sendCheckCodeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SMSUtil.requestVerificationCode("86",
+                        accountInput.getText() == null ? "" : accountInput.getText().toString());
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        SMSUtil.resignEventHandler();
+        super.onDestroy();
     }
 
     private boolean checkInputPhoneAccountInstantly(String inputPhone) {

@@ -17,4 +17,6 @@
     <!--activity_login activity_register-->
     <color name="accountCheck">#FF0000</color>
     <color name="passwordCheck">#FF0000</color>
+
+    <color name="sddd">#FF0035</color>
 </resources>

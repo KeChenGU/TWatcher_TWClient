@@ -68,7 +68,7 @@ public final class Utility {
                 ApplicationInfo applicationInfo = packageManager.getApplicationInfo(usageStats.getPackageName(),
                         PackageManager.GET_META_DATA);
                 PackageInfo packageInfo = packageManager.getPackageInfo(usageStats.getPackageName(), PackageManager.GET_META_DATA);
-                if ((applicationInfo.flags & applicationInfo.FLAG_SYSTEM) <= 0) { //该句判断是否是系统内置应用
+                //if ((applicationInfo.flags & applicationInfo.FLAG_SYSTEM) <= 0) { //该句判断是否是系统内置应用
 
                     Date whichDay = endCal.getTime();
                     LogUtil.d(Utility.WATCH_TAG, "WhichDay: " + whichDay);
@@ -106,7 +106,7 @@ public final class Utility {
                     appTimeInfos.setUsing_minutes(usingMinutes);
                     LogUtil.d(Utility.WATCH_TAG, "添加成功!" + appTimeInfos.toString());
                     appTimeInfosList.add(appTimeInfos);
-                }
+                //}
             }
         }
         return appTimeInfosList;

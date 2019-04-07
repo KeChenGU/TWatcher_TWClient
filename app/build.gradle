@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.mob.sdk'
 
 android {
     compileSdkVersion 28
@@ -17,6 +18,13 @@ android {
         }
     }
 }
+
+MobSDK {
+    appKey "2a056804e4e62"
+    appSecret "c63843c380b86da55bd689e8677615ac"
+    SMSSDK {}
+}
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/education"
+            android:icon="@drawable/class_bought"
+            android:title="线下教育" />
+        <item android:id="@+id/online"
+            android:icon="@drawable/book"
+            android:title="精品书籍" />
+        <item android:id="@+id/show"
+            android:icon="@drawable/online"
+            android:title="在线课程" />
+    </group>
+</menu>

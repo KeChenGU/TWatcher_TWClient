@@ -1,19 +1,22 @@
 package com.apps.haitao.twatcher.twclient.activities;
 
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -22,8 +25,12 @@ import android.widget.Toast;
 import com.apps.haitao.twatcher.twclient.R;
 import com.apps.haitao.twatcher.twclient.activities.adapters.AppInfoAdapter;
 import com.apps.haitao.twatcher.twclient.activities.adapters.AppTimeInfoAdapter;
+import com.apps.haitao.twatcher.twclient.activities.adapters.ChildInfoAdapter;
+import com.apps.haitao.twatcher.twclient.activities.adapters.ParentInfoAdapter;
 import com.apps.haitao.twatcher.twclient.activities.gsons.AppTimeInfo;
 import com.apps.haitao.twatcher.twclient.activities.gsons.ChildMsg;
+import com.apps.haitao.twatcher.twclient.activities.gsons.MyChildren;
+import com.apps.haitao.twatcher.twclient.activities.gsons.MyParents;
 import com.apps.haitao.twatcher.twclient.activities.gsons.TWUser;
 import com.apps.haitao.twatcher.twclient.activities.tables.App_Time_Infos;
 import com.apps.haitao.twatcher.twclient.activities.tables.TW_Users;
@@ -32,11 +39,13 @@ import com.apps.haitao.twatcher.twclient.activities.twutil.HttpUtil;
 import com.apps.haitao.twatcher.twclient.activities.twutil.JsonUtil;
 import com.apps.haitao.twatcher.twclient.activities.twutil.LogUtil;
 import com.apps.haitao.twatcher.twclient.activities.twutil.NetWorkUtil;
+import com.apps.haitao.twatcher.twclient.activities.twutil.NotificationUtil;
 import com.apps.haitao.twatcher.twclient.activities.twutil.PermissionUtil;
 import com.apps.haitao.twatcher.twclient.activities.twutil.SocketUtil;
 import com.apps.haitao.twatcher.twclient.activities.twutil.Utility;
 import com.apps.haitao.twatcher.twclient.activities.twutil.ViewUtil;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -46,8 +55,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -60,9 +67,17 @@ public class WatchActivity extends AppCompatActivity {
 
     private List<App_Time_Infos> appTimeInfosList;
 
+    private List<MyChildren> myChildrenList;
+
+    private List<MyParents> myParentsList;
+
     private AppInfoAdapter appInfoAdapter;
 
     private AppTimeInfoAdapter appTimeInfoAdapter;
+
+    private ChildInfoAdapter childInfoAdapter;
+
+    private ParentInfoAdapter parentInfoAdapter;
 
     private boolean registerFlag = false;
 
@@ -76,6 +91,10 @@ public class WatchActivity extends AppCompatActivity {
     private ProgressBar netConnBar;
 
     private RecyclerView appTimeInfoView;
+
+    private RecyclerView childrenInfoView;
+
+    private RecyclerView parentInfoView;
 
     //private ListView appTimeInfoListView;
 
@@ -95,16 +114,34 @@ public class WatchActivity extends AppCompatActivity {
 
     private TextView parentUserNameView;
 
+    private TextView childParentsView;
+
+    private TextView parentChildrenView;
+
     private TextView aboutChildView;
 
     private TextView aboutParentView;
 
     private TextView parentNotifyView;
 
+    private TextView parentTimeSettingView;
+
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private PopupMenu parentSettingMenu;
+    private AlertDialog parentsDialog;
+
+    private AlertDialog childrenDialog;
+
+    private AlertDialog settingDialog;
+
+    //private View view = LayoutInflater.from(WatchActivity.this).inflate(R.layout.parent_dialog, null);
+
+    //private PopupMenu parentSettingMenu;
+
     //
+
+    private static int spyNum = 0;
+
     final int START_HANDLING = 0x00;
 
     final int STOP_HANDING = 0x01;
@@ -197,6 +234,7 @@ public class WatchActivity extends AppCompatActivity {
             LogUtil.d(Utility.WATCH_TAG, "正在执行!");
             //Iterator<App_Time_Infos> infosIterator = app_time_infos.iterator();
             //while (infosIterator.hasNext()) {
+
             //    appTimeInfosList.add(infosIterator.next());
             //}
             appTimeInfosList.addAll(app_time_infos);
@@ -205,6 +243,7 @@ public class WatchActivity extends AppCompatActivity {
         }
         if (appTimeInfosList != null) {
             appTimeInfoAdapter.notifyDataSetChanged();
+            Log.d("get", appTimeInfosList + "不为空！" + appTimeInfosList.size());
         }
         Toast.makeText(this, "获取成功!", Toast.LENGTH_SHORT).show();
     }
@@ -212,8 +251,8 @@ public class WatchActivity extends AppCompatActivity {
 
     @PermissionFail(requestCode = PermissionUtil.AppInfoPermission.defaultRequestCode)
     private void doAfterRequestFail() {
-        //Toast.makeText(this, "获取失败!请检查是否设置好访问权限!", Toast.LENGTH_SHORT).show();
-        //startActivity(new Intent(Child_Settings.ACTION_USAGE_ACCESS_SETTINGS));
+        Toast.makeText(this, "获取失败!请检查是否设置好访问权限!", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
     }
 
     private void loginMode() {
@@ -227,7 +266,8 @@ public class WatchActivity extends AppCompatActivity {
         }
         boolean childFlag = twUser.isIs_child();
         if(childFlag) {
-            setContentView(R.layout.activity_child);
+            //setContentView(R.layout.activity_child);
+            setContentView(R.layout.activity_child_with_drawer);
             configChildControls();
             initialChildControls(twUser);
         } else {
@@ -362,8 +402,10 @@ public class WatchActivity extends AppCompatActivity {
         childUserNameView = (TextView)findViewById(R.id.child_user_name);
         appTimeInfoView = (RecyclerView)findViewById(R.id.use_info_list);
         swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.refresh_app_time_info_child);
+        childParentsView = (TextView)findViewById(R.id.my_parents);
         aboutChildView = (TextView)findViewById(R.id.about_child_user);
         netConnBar = (ProgressBar)findViewById(R.id.child_net_work_progressbar);
+        parentInfoView = new RecyclerView(this);
     }
 
     private void configParentControls(){
@@ -373,9 +415,12 @@ public class WatchActivity extends AppCompatActivity {
         parentUserNameView = (TextView)findViewById(R.id.parent_user_name);
         appTimeInfoView = (RecyclerView)findViewById(R.id.receive_info_list);
         swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.refresh_app_time_info_parent);
+        parentChildrenView = (TextView)findViewById(R.id.my_children);
+        parentTimeSettingView = (TextView)findViewById(R.id.time_settings);
         aboutParentView = (TextView)findViewById(R.id.about_parent_user);
         netConnBar = (ProgressBar)findViewById(R.id.parent_net_work_progressbar);
         parentNotifyView = (TextView)findViewById(R.id.parent_notify);
+        childrenInfoView = new RecyclerView(this);
     }
 
     private void initialChildControls(final Intent intent) {
@@ -389,13 +434,24 @@ public class WatchActivity extends AppCompatActivity {
         childUserNameView.setText(childUserName == null ? "" : childUserName);
         //
         appTimeInfosList = new ArrayList<>();
+        myParentsList = new ArrayList<>();
         appTimeInfoAdapter = new AppTimeInfoAdapter(appTimeInfosList);
+        parentInfoAdapter = new ParentInfoAdapter(myParentsList);
         ViewUtil.configRecyclerViewAdapter(this, appTimeInfoView, appTimeInfoAdapter);
+        ViewUtil.configRecyclerViewAdapter(this, parentInfoView, parentInfoAdapter);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 refreshData();
                 swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+        childParentsView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //showPopUpParent(v);
+                Toast.makeText(WatchActivity.this, "You Clicked the my parent!", Toast.LENGTH_SHORT).show();
+                showParentDialog();
             }
         });
         aboutChildView.setOnClickListener(new View.OnClickListener() {
@@ -421,13 +477,30 @@ public class WatchActivity extends AppCompatActivity {
         childUserNameView.setText(childUserName == null ? "" : childUserName);
         //
         appTimeInfosList = new ArrayList<>();
+        myParentsList = new ArrayList<>();
         appTimeInfoAdapter = new AppTimeInfoAdapter(appTimeInfosList);
+        parentInfoAdapter = new ParentInfoAdapter(myParentsList);
         ViewUtil.configRecyclerViewAdapter(this, appTimeInfoView, appTimeInfoAdapter);
+        ViewUtil.configRecyclerViewAdapter(this, parentInfoView, parentInfoAdapter);
+        myParentsList.add(new MyParents("male", "", "爸爸", "15656656693"));
+        myParentsList.add(new MyParents("female", "", "妈妈", "15858856866"));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refreshData();
+                //refreshData();
+                //swipeRefreshLayout.setRefreshing(false);
+                NotificationUtil.initNotificationManager(WatchActivity.this);
+                NotificationUtil.showCreatedNotification(WatchActivity.this,
+                        ShowAssoUserActivity.class, "提醒", "请注意手机使用时间！", R.drawable.id_parent, 1);
                 swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+        childParentsView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //showPopUpParent(v);
+                Toast.makeText(WatchActivity.this, "You Clicked the my parent!", Toast.LENGTH_SHORT).show();
+                showParentDialog();
             }
         });
         aboutChildView.setOnClickListener(new View.OnClickListener() {
@@ -475,7 +548,12 @@ public class WatchActivity extends AppCompatActivity {
         //
         appTimeInfosList = new ArrayList<>();
         appTimeInfoAdapter = new AppTimeInfoAdapter(appTimeInfosList);
+        myChildrenList = new ArrayList<>();
+        childInfoAdapter = new ChildInfoAdapter(myChildrenList);
         ViewUtil.configRecyclerViewAdapter(this, appTimeInfoView, appTimeInfoAdapter);
+        ViewUtil.configRecyclerViewAdapter(this, childrenInfoView, childInfoAdapter);
+        myChildrenList.add(new MyChildren("female", "", "小红", "13758706656", "监控中"));
+        myChildrenList.add(new MyChildren("male", "", "小明", "13588781329", "未监控"));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -493,12 +571,28 @@ public class WatchActivity extends AppCompatActivity {
                 startActivity(specificIntent);
             }
         });
+        parentChildrenView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showChildrenDialog();
+            }
+        });
+        parentTimeSettingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSettingDialog();
+            }
+        });
         parentSettingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent tranIntent = new Intent(WatchActivity.this, AssociationActivity.class);
                 Bundle userData = intent.getExtras();
                 TW_Users twUser = (TW_Users) userData.getSerializable("loginUser");
+                if (twUser == null) {
+
+                    return;
+                }
                 tranIntent.putExtra("parentId", twUser.getUser_id());
                 startActivity(tranIntent);
             }
@@ -517,12 +611,17 @@ public class WatchActivity extends AppCompatActivity {
         //
         appTimeInfosList = new ArrayList<>();
         appTimeInfoAdapter = new AppTimeInfoAdapter(appTimeInfosList);
+        myChildrenList = new ArrayList<>();
+        childInfoAdapter = new ChildInfoAdapter(myChildrenList);
         ViewUtil.configRecyclerViewAdapter(this, appTimeInfoView, appTimeInfoAdapter);
+        ViewUtil.configRecyclerViewAdapter(this, childrenInfoView, childInfoAdapter);
+        myChildrenList.add(new MyChildren("female", "", "小红", "13758706656", "监控中"));
+        myChildrenList.add(new MyChildren("male", "", "小明", "13588781329", "未监控"));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //refreshData();
-                requestData();
+                refreshData();
+                //requestData();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -534,6 +633,18 @@ public class WatchActivity extends AppCompatActivity {
                 //TW_Users twUser = new TW_Users();
                 specificIntent.putExtra("account", twUser.getName());
                 startActivity(specificIntent);
+            }
+        });
+        parentChildrenView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showChildrenDialog();
+            }
+        });
+        parentTimeSettingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSettingDialog();
             }
         });
         parentSettingView.setOnClickListener(new View.OnClickListener() {
@@ -590,7 +701,7 @@ public class WatchActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void requestData() {
+    private void requestChildAppData() {
         new Thread(createClientParentRunnable()).start();
     }
 
@@ -731,10 +842,25 @@ public class WatchActivity extends AppCompatActivity {
                 String data = null;
                 if (intent != null) {
                     Bundle userData = intent.getExtras();
-                    data = userData.getString("phone_num");
-                    if (data == null || data.equals("")) {
-                        TW_Users tw_users = (TW_Users) userData.getSerializable("loginUser");
-                        data = String.valueOf(tw_users.getPhone_num());
+//                    data = userData.getString("phone_num");
+//                    if (data == null || data.equals("")) {
+//                        TW_Users tw_users = (TW_Users) userData.getSerializable("loginUser");
+//                        data = tw_users == null  ? "" : String.valueOf(tw_users.getPhone_num());
+//                    }
+                    TW_Users tw_users = (TW_Users) userData.getSerializable("loginUser");
+                    if (tw_users != null) {
+                        if (tw_users.isIs_child()) {
+                            data = new Gson().toJson(appTimeInfosList);
+                        } else {
+                            data = myChildrenList.get(spyNum).getChildPhone();
+                        }
+                    } else {
+                        String identity = getIntent().getStringExtra("identity");
+                        if (identity.equals("child")) {
+                            data = new Gson().toJson(appTimeInfosList);
+                        } else {
+                            data = myChildrenList.get(spyNum).getChildPhone();
+                        }
                     }
                 }
                 pw.write(data);
@@ -805,4 +931,130 @@ public class WatchActivity extends AppCompatActivity {
             appTimeInfosList.add(app_time_info);
         }
     }
+
+    private void showPopUpParent(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.getMenuInflater().inflate(R.menu.nav_parent_menu, popupMenu.getMenu());
+        popupMenu.show();
+    }
+
+    private void showParentDialog() {
+        if (parentsDialog == null) {
+            //LayoutInflater layoutInflater = LayoutInflater.from(this);
+            //View view = getLayoutInflater().inflate(R.layout.parent_dialog, null);
+            //CircleImageView motherIcon = (CircleImageView)view.findViewById(R.id.mother_icon);
+            //CircleImageView fatherIcon = (CircleImageView)view.findViewById(R.id.father_icon);
+            parentsDialog = new AlertDialog.Builder(this)
+                    .setIcon(R.drawable.parent)
+                    .setTitle("我的家长")
+                    .setView(parentInfoView)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .create();
+
+        }
+        if (!parentsDialog.isShowing()) {
+            parentsDialog.show();
+            //parentsDialog.getWindow().setContentView(getLayoutInflater().inflate(R.layout.parent_dialog, null));
+        } else {
+            parentsDialog.dismiss();
+        }
+    }
+
+    private void getChildDataForParent() {
+        try {
+            String childDataJson = HttpUtil.sendReceiveChildMsgRequest(
+                    (TW_Users) getIntent().getExtras().getSerializable("loginUser"));
+            myChildrenList.addAll((List<MyChildren>)
+                    new Gson().fromJson(childDataJson, new TypeToken<List<MyChildren>>(){}.getType()));
+            childInfoAdapter.notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showChildrenDialog() {
+        if (childrenDialog == null) {
+            childrenDialog = new AlertDialog.Builder(this)
+                    .setIcon(R.drawable.children)
+                    .setTitle("我的孩子")
+                    .setView(childrenInfoView)
+                    .create();
+        }
+        if (!childrenDialog.isShowing()) {
+            childrenDialog.show();
+        } else {
+            childrenDialog.dismiss();
+        }
+    }
+
+    private void showSettingDialog() {
+        if (settingDialog == null) {
+            settingDialog = new AlertDialog.Builder(this)
+                    .setIcon(R.drawable.ic_settings)
+                    .setTitle("统计设置")
+                    .setMultiChoiceItems(
+                            new String[]{ "日使用统计", "周使用统计", "月使用统计", "年使用统计"},
+                            new boolean[]{true, false, false, false},
+                            new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                    AlertDialog setting = null;
+                                    switch (which) {
+                                        case 0:
+                                            setting = new AlertDialog.Builder(WatchActivity.this)
+                                                    .create();
+                                            break;
+                                        case 1:
+                                            setting = new AlertDialog.Builder(WatchActivity.this)
+                                                    .create();
+                                            break;
+                                        case 2:
+
+                                            break;
+                                        case 3:
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    if (setting != null) {
+                                        setting.show();
+                                    }
+                                }
+                            }
+                    )
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create();
+        }
+        if (!settingDialog.isShowing()) {
+            settingDialog.show();
+        } else {
+            settingDialog.dismiss();
+        }
+    }
+
+
+
+
 }

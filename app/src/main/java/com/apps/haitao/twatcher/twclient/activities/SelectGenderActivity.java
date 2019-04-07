@@ -63,6 +63,7 @@ public class SelectGenderActivity extends AppCompatActivity implements View.OnCl
         intent.putExtras(lastIntent.getExtras() == null ? new Bundle() : lastIntent.getExtras());
         startActivity(intent);
         overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+        finish();
     }
 
     @Override

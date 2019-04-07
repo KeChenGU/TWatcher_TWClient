@@ -43,4 +43,9 @@ public final class MD5Util {
         int d2 = n % 16;
         return hexDigIts[d1] + hexDigIts[d2];
     }
+
+    public static byte[] hexStringToByteArray(String[] hexString) {
+
+        return null;
+    }
 }

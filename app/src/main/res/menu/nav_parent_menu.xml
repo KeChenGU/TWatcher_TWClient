@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/open"
+        android:orderInCategory="100"
+        android:title="我的妈妈"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/close"
+        android:orderInCategory="100"
+        android:title="我的爸爸"
+        app:showAsAction="never"/>
 </menu>

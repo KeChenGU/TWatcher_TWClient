@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.apps.haitao.twatcher.twclient.R;
@@ -21,6 +22,9 @@ public class SpecificInfoActivity extends AppCompatActivity {
 
     private List<User_Specific_Infos> userSpecificInfosList;
     //
+
+    private LinearLayout specificLayout;
+
     private ListView specificInfoListView;
 
     private Button loginOutButton;
@@ -38,11 +42,13 @@ public class SpecificInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SpecificInfoActivity.this, LoginActivity.class));
+                finish();
             }
         });
     }
 
     private void configControls() {
+        specificLayout = (LinearLayout) findViewById(R.id.specific_info_layout);
         specificInfoListView = (ListView) findViewById(R.id.specific_info_list);
 
     }
@@ -51,19 +57,51 @@ public class SpecificInfoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         List<TW_Users> twUsers = LitePal.where("name = ?", intent.getStringExtra("account")).find(TW_Users.class);
         if(twUsers == null) {
+            initUserSpecificInfoByNet();
             return;
         }
         TW_Users twUser = twUsers.get(0);
+//        int sourceId = 0;
+//        switch (twUser.getGender()) {
+//            case "male":
+//                if (twUser.getIdentity() == null) {
+//                    break;
+//                }
+//                if (twUser.getIdentity().equals("child")) {
+//                    sourceId = R.drawable.child_boy;
+//                } else {
+//                    sourceId = R.drawable.parent_father;
+//                }
+//                break;
+//            case "female":
+//                if (twUser.getIdentity() == null) {
+//                    break;
+//                }
+//                if (twUser.getIdentity().equals("child")) {
+//                    sourceId = R.drawable.child_girl;
+//                } else {
+//                    sourceId = R.drawable.parent_mother;
+//                }
+//                break;
+//            default:
+//                sourceId = R.drawable.child_boy;
+//                break;
+//        }
+//        specificLayout.setBackgroundResource(sourceId);
         userSpecificInfosList = new ArrayList<>();
         userSpecificInfosList.add(new User_Specific_Infos("账户",
                 twUser.getName() == null ? "" : twUser.getName() ));
         userSpecificInfosList.add(new User_Specific_Infos("真实姓名",
                 twUser.getUser_name() == null ? "待完善" : twUser.getUser_name()));
         userSpecificInfosList.add(new User_Specific_Infos("身份证号",
-                twUser.getId_card_num() == null ? "待完善" : twUser.getId_card_num()));
+                twUser.getId_card_num() == null || twUser.getId_card_num().equals("") ? "待完善" : twUser.getId_card_num()));
         userSpecificInfosList.add(new User_Specific_Infos("电话号码", String.valueOf(twUser.getPhone_num())));
         userSpecificInfosList.add(new User_Specific_Infos("电子邮箱",
-                twUser.getEmail() == null ? "" : twUser.getEmail()));
+                twUser.getEmail() == null ? "待完善" : "待完善"/*twUser.getEmail()*/));
+
+    }
+
+    private void initUserSpecificInfoByNet() {
 
     }
 }

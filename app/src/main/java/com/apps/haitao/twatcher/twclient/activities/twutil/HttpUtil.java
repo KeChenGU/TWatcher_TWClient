@@ -96,7 +96,9 @@ public final class HttpUtil {
 //        client.newCall(request).enqueue(callback);
 //    }
 
-    private static final String DEFAULT_SERVER_ADDRESS = "http://192.168.43.201/TWServer/"; //10.0.2.2
+    private static final String DEFAULT_SERVER_ADDRESS = "http://192.168.31.98/TWServer/";//"http://192.168.1.103/TWServer/";
+
+    //"http://192.168.43.201/TWServer/"; //10.0.2.2
 
     private static final String LOGIN_ADDRESS = "LoginCheck";
 
@@ -107,6 +109,8 @@ public final class HttpUtil {
     private static final String PARENT_MSG_ADDRESS = "HandleParentMsg";
 
     private static final String ASSOCIATION_ADDRESS = "CreateAssociation";
+
+    private static final String CHANGE_PASS_ADDRESS = "ChangePassword";
 
     public static final String MODE_GET = "GET";
 
@@ -235,6 +239,17 @@ public final class HttpUtil {
         Response response = okHttpClient.newCall(request).execute();
         return response.body().string();
     }
+
+    public static String sendChangePasswordRequest(String phoneNum, String password) throws IOException {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        String url = DEFAULT_SERVER_ADDRESS + CHANGE_PASS_ADDRESS;
+        String condition = "?phoneNum=" + phoneNum + "&password=" + password;
+        Request request = new Request.Builder().url(url + condition).build();
+        Response response = okHttpClient.newCall(request).execute();
+        return response.body().string();
+    }
+
+
 
 
 
